@@ -62,7 +62,14 @@
     
     <div class="translation-container" v-if="translationResult">
       <div class="interlinear-pane" id="interlinear-pane">
-        <div class="pane-header">Interlinear Translation</div>
+        <div class="pane-header">
+          Interlinear Translation
+          <div class="pane-actions">
+            <button @click="printInterlinear" class="action-button" title="Print interlinear translation">
+              <span class="action-icon">🖨️</span>
+            </button>
+          </div>
+        </div>
         <div class="interlinear-content">
           <div v-for="(chunk, chunkIndex) in translationResult.interlinear" :key="chunkIndex" class="chunk">
             <div class="word-container">
@@ -82,15 +89,22 @@
       </div>
       
       <div class="readable-pane" :class="{ 'floating': isScrolled }" id="readable-pane" :style="floatingStyle">
-        <div class="pane-header">Readable Translation</div>
-          <div class="readable-content">
-            <p v-for="(sentence, index) in translationResult.readable" :key="index"
-               :dir="isRTLLanguage(targetLanguage) ? 'rtl' : 'ltr'"
-               :lang="targetLanguage"
-               :class="{ 'rtl-text': isRTLLanguage(targetLanguage) }">
-              {{ sentence }}
-            </p>
+        <div class="pane-header">
+          Readable Translation
+          <div class="pane-actions">
+            <button @click="copyReadableTranslation" class="action-button" title="Copy to clipboard">
+              <span class="action-icon">📋</span>
+            </button>
           </div>
+        </div>
+        <div class="readable-content">
+          <p v-for="(sentence, index) in translationResult.readable" :key="index"
+             :dir="isRTLLanguage(targetLanguage) ? 'rtl' : 'ltr'"
+             :lang="targetLanguage"
+             :class="{ 'rtl-text': isRTLLanguage(targetLanguage) }">
+            {{ sentence }}
+          </p>
+        </div>
       </div>
       
       <!-- Add spacer to maintain scroll height when the readable panel floats -->
@@ -833,6 +847,191 @@ Return valid JSON with translation pairs.` },
              (sentence.includes('"') && sentence.includes('said')) ||
              (sentence.includes('"') && sentence.includes('asked')) ||
              (sentence.match(/^[\s]*"[^"]+"/));
+    },
+    
+    // Copy the readable translation to the clipboard
+    copyReadableTranslation() {
+      if (!this.translationResult || !this.translationResult.readable) return;
+      
+      const readableText = this.translationResult.readable.join(' ');
+      
+      navigator.clipboard.writeText(readableText)
+        .then(() => {
+          alert('Translation copied to clipboard!');
+        })
+        .catch(err => {
+          console.error('Failed to copy text: ', err);
+          // Fallback for older browsers
+          this.fallbackCopy(readableText);
+        });
+    },
+    
+    // Fallback copy method for browsers that don't support clipboard API
+    fallbackCopy(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      
+      try {
+        document.execCommand('copy');
+        alert('Translation copied to clipboard!');
+      } catch (err) {
+        console.error('Failed to copy text: ', err);
+        alert('Failed to copy. Please try selecting and copying the text manually.');
+      }
+      
+      document.body.removeChild(textArea);
+    },
+    
+    // Print the interlinear translation with margin notes
+    printInterlinear() {
+      // Create a new window for printing
+      const printWindow = window.open('', '_blank');
+      if (!printWindow) {
+        alert('Please allow pop-ups for printing functionality');
+        return;
+      }
+      
+      // Get the readable translation
+      const readableText = this.translationResult.readable.join(' ');
+      
+      // Get interlinear content
+      const interlinearContent = document.querySelector('.interlinear-content').cloneNode(true);
+      
+      // Create print HTML with both interlinear and readable in margin
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Interlinear Translation</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              margin: 0;
+              padding: 20px;
+            }
+            .print-container {
+              display: flex;
+            }
+            .interlinear-section {
+              flex: 3;
+              padding-right: 20px;
+            }
+            .readable-section {
+              flex: 1;
+              padding: 10px;
+              background-color: #f9f9f9;
+              border-left: 1px solid #ccc;
+              font-size: 0.85em;
+            }
+            .interlinear-word {
+              display: inline-block;
+              margin: 0 5px 10px 0;
+              vertical-align: top;
+            }
+            .original {
+              font-weight: bold;
+            }
+            .translation {
+              color: #666;
+              font-size: 0.9em;
+            }
+            .chunk {
+              margin-bottom: 20px;
+            }
+            .chunk-separator {
+              height: 1px;
+              background-color: #ddd;
+              margin: 15px 0;
+            }
+            .word-container {
+              display: flex;
+              flex-wrap: wrap;
+            }
+            
+            /* Print-specific styles */
+            @media print {
+              body {
+                font-size: 12pt;
+              }
+              .readable-section {
+                font-size: 10pt;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+            
+            /* Add speaker change indicator for print */
+            .speaker-change {
+              margin-top: 15px;
+            }
+            .speaker-change-indicator {
+              width: 100%;
+              height: 10px;
+              margin: 8px 0;
+            }
+            
+            /* Header for the document */
+            .print-header {
+              padding: 10px 0;
+              margin-bottom: 20px;
+              border-bottom: 2px solid #333;
+            }
+            
+            /* Action buttons */
+            .print-actions {
+              text-align: right;
+              margin-bottom: 20px;
+            }
+            .print-button {
+              background-color: #4361ee;
+              color: white;
+              border: none;
+              padding: 8px 15px;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="print-header">
+            <h1>Interlinear Translation</h1>
+            <p>Source Language: ${this.getLanguageName(this.sourceLanguage)} | Target Language: ${this.getLanguageName(this.targetLanguage)}</p>
+          </div>
+          
+          <div class="print-actions no-print">
+            <button class="print-button" onclick="window.print()">Print Document</button>
+          </div>
+          
+          <div class="print-container">
+            <div class="interlinear-section">
+              <h2>Interlinear Translation</h2>
+              ${interlinearContent.outerHTML}
+            </div>
+            
+            <div class="readable-section">
+              <h2>Readable Translation</h2>
+              <div>
+                ${this.translationResult.readable.map(s => `<p>${s}</p>`).join('')}
+              </div>
+            </div>
+          </div>
+        </body>
+        </html>
+      `;
+      
+      // Write to the new window
+      printWindow.document.open();
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      
+      // Optional: Wait for resources to load then print
+      printWindow.onload = function() {
+        // Uncomment to automatically print
+        // printWindow.print();
+      };
     }
   }
 }
@@ -878,6 +1077,37 @@ Return valid JSON with translation pairs.` },
 .dialogue-break {
   margin-top: 1em !important;
   position: relative;
+}
+
+/* Styling for action buttons in pane headers */
+.pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pane-actions {
+  display: flex;
+  gap: 5px;
+}
+
+.action-button {
+  background: none;
+  border: none;
+  color: #4361ee;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.action-button:hover {
+  background-color: rgba(67, 97, 238, 0.1);
+}
+
+.action-icon {
+  font-size: 1.2rem;
 }
 
 /* Fix vertical alignment of dashes and punctuation */
