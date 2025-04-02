@@ -1,6 +1,6 @@
 # Interlinear Translation App
 
-A browser-based app that runs locally and provides interlinear translations of text in any language. The app shows a word-by-word translation beneath the original text, along with a more readable translation with proper word ordering in the target language.
+A browser-based app that runs locally and provides interlinear translations of text in 48 languages. The app shows a word-by-word translation beneath the original text, along with a more readable translation with proper word ordering in the target language.
 
 ## Features
 
@@ -69,7 +69,7 @@ This application uses OpenAI's API for translation. You'll need an OpenAI API ke
 
 ### API Usage Notes
 
-- The app uses GPT-3.5-Turbo for fluent translations and GPT-4o for word-by-word translations
+- The app uses GPT-4o for fluent translations and word-by-word translations
 - Each translation request will consume API credits based on OpenAI's current pricing
 - Your API key is only stored in browser memory and is never sent to any server except OpenAI's API servers
 - For privacy reasons, consider using this app for non-sensitive content
