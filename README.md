@@ -1,6 +1,6 @@
 # Interlinear Translation App
 
-A browser-based app that runs locally and provides interlinear translations of text in 48 languages. The app shows a word-by-word translation beneath the original text, along with a more readable translation with proper word ordering in the target language.
+A browser-based app that runs locally and provides interlinear translations of text in ~70 languages. The app shows a word-by-word translation beneath the original text, along with a more readable translation with proper word ordering in the target language.
 
 ## Features
 
