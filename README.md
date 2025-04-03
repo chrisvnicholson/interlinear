@@ -86,10 +86,6 @@ The recommended way to provide your API key is through environment variables:
 - When using environment variables, your API key is never exposed in the source code
 - For privacy reasons, consider using this app for non-sensitive content
 
-### Security Notice
-
-In a production environment, API requests should be proxied through a backend server to avoid exposing your API key in browser code. This example uses `dangerouslyAllowBrowser: true` for demonstration purposes only.
-
 ## Future Enhancements
 
 - Integration with professional translation APIs
