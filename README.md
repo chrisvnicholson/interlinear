@@ -86,11 +86,6 @@ The recommended way to provide your API key is through environment variables:
 - When using environment variables, your API key is never exposed in the source code
 - For privacy reasons, consider using this app for non-sensitive content
 
-## Future Enhancements
+## Screenshot
 
-- Integration with professional translation APIs
-- Support for more languages
-- Advanced language analysis for better interlinear translations
-- Export/import functionality
-- Saving translations for later reference
-- Custom dictionaries
+<img width="1195" alt="Screenshot 2025-04-03 at 3 11 22 PM" src="https://github.com/user-attachments/assets/64053d74-612d-4360-b572-01d77839af5b" />
