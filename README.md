@@ -64,14 +64,26 @@ This application uses OpenAI's API for translation. You'll need an OpenAI API ke
 
 1. Sign up for an account at [OpenAI's website](https://openai.com)
 2. Create an API key in your account dashboard
-3. When you first click the "Translate" button, you'll be prompted to enter your API key
-4. The app will store your API key in memory for the session (it is not saved permanently)
+3. Set up your API key in one of the following ways:
+   - **Environment variable**: Copy `.env.example` to `.env` and add your API key
+   - **Manual entry**: When you first click the "Translate" button without a configured key, you'll be prompted to enter it
+
+### Setting Up Environment Variables
+
+The recommended way to provide your API key is through environment variables:
+
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Edit the `.env` file and replace `your-api-key-here` with your actual OpenAI API key
+3. The `.env` file is included in `.gitignore` so it won't be committed to version control
 
 ### API Usage Notes
 
 - The app uses GPT-3.5-Turbo for fluent translations and GPT-4o for word-by-word translations
 - Each translation request will consume API credits based on OpenAI's current pricing
-- Your API key is only stored in browser memory and is never sent to any server except OpenAI's API servers
+- When using environment variables, your API key is never exposed in the source code
 - For privacy reasons, consider using this app for non-sensitive content
 
 ### Security Notice

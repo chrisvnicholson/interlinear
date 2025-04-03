@@ -10,6 +10,8 @@ export default defineConfig({
     }
   },
   server: {
-    port: 3000
+    port: 3002,  // Changed to port 3002 since 3000 and 3001 are in use
+    open: true,  // Automatically open browser when starting
+    strictPort: false // Allow Vite to find another port if 3002 is in use
   }
 })

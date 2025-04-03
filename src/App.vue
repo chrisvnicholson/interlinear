@@ -9,110 +9,109 @@
     <header class="app-header">
       <h1>Interlinear Translation</h1>
     </header>
+<section class="input-section">
+  <div class="language-section">
+    <div class="form-group">
+      <label for="sourceLanguage">Source Language</label>
+      <div class="language-select-wrapper">
+        <select id="sourceLanguage" v-model="sourceLanguage" :disabled="isTranslating" class="language-select">
+          <option value="auto">Auto-detect</option>
+          <option v-for="lang in sortedLanguages" :key="lang.code" :value="lang.code">
+            {{ lang.name }}
+          </option>
+        </select>
+        <div class="language-count">{{ languages.length }} languages</div>
+      </div>
+    </div>
     
-    <section class="input-section">
-      <div class="language-section">
-        <div class="form-group">
-          <label for="sourceLanguage">Source Language</label>
-          <div class="language-select-wrapper">
-            <select id="sourceLanguage" v-model="sourceLanguage" :disabled="isTranslating" class="language-select">
-              <option value="auto">Auto-detect</option>
-              <option v-for="lang in sortedLanguages" :key="lang.code" :value="lang.code">
-                {{ lang.name }}
-              </option>
-            </select>
-            <div class="language-count">{{ languages.length }} languages</div>
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label for="targetLanguage">Target Language</label>
-          <div class="language-select-wrapper">
-            <select id="targetLanguage" v-model="targetLanguage" :disabled="isTranslating" class="language-select">
-              <!-- English is always at the top -->
-              <option value="en">English</option>
-              <option v-for="lang in targetLanguages" :key="lang.code" :value="lang.code">
-                {{ lang.name }}
-              </option>
-            </select>
-            <div class="language-count">{{ languages.length }} languages</div>
-          </div>
-        </div>
+    <div class="form-group">
+      <label for="targetLanguage">Target Language</label>
+      <div class="language-select-wrapper">
+        <select id="targetLanguage" v-model="targetLanguage" :disabled="isTranslating" class="language-select">
+          <!-- English is always at the top -->
+          <option value="en">English</option>
+          <option v-for="lang in targetLanguages" :key="lang.code" :value="lang.code">
+            {{ lang.name }}
+          </option>
+        </select>
+        <div class="language-count">{{ languages.length }} languages</div>
       </div>
-      
-      <div class="form-group">
-        <label for="sourceText">Text to Translate</label>
-        <textarea 
-          id="sourceText" 
-          v-model="sourceText" 
-          placeholder="Enter the text you want to translate..."
-          :disabled="isTranslating"
-        ></textarea>
-      </div>
-      
-      <!-- API key UI elements removed -->
-      
-      <button @click="translateText" :disabled="isTranslating" class="primary-button">
-        <span v-if="isTranslating">Translating...</span>
-        <span v-else>Translate</span>
-      </button>
-      
-      <div v-if="error" class="error-message">{{ error }}</div>
-    </section>
-    
-    <div class="translation-container" v-if="translationResult">
-      <div class="interlinear-pane" id="interlinear-pane">
-        <div class="pane-header">
-          Interlinear Translation
-          <div class="pane-actions">
-            <button @click="printInterlinear" class="action-button" title="Print interlinear translation">
-              <span class="action-icon">🖨️</span>
-            </button>
-          </div>
-        </div>
-        <div class="interlinear-content">
-          <div v-for="(chunk, chunkIndex) in translationResult.interlinear" :key="chunkIndex" class="chunk">
-            <div class="word-container">
-              <div 
-                v-for="(wordPair, wordIndex) in chunk" 
-                :key="wordIndex" 
-                :class="['interlinear-word', { 'speaker-change': isDialogueChange(wordPair, wordIndex, chunk) }]"
-              >
-                <div class="original">{{ wordPair.original }}</div>
-                <div class="translation">{{ wordPair.translation }}</div>
-              </div>
-            </div>
-            <!-- Add a visual separator between chunks -->
-            <div v-if="chunkIndex < translationResult.interlinear.length - 1" class="chunk-separator"></div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="readable-pane" :class="{ 'floating': isScrolled }" id="readable-pane" :style="floatingStyle">
-        <div class="pane-header">
-          Readable Translation
-          <div class="pane-actions">
-            <button @click="copyReadableTranslation" class="action-button" title="Copy to clipboard">
-              <span class="action-icon">📋</span>
-            </button>
-          </div>
-        </div>
-        <div class="readable-content">
-          <p v-for="(sentence, index) in translationResult.readable" :key="index"
-             :dir="isRTLLanguage(targetLanguage) ? 'rtl' : 'ltr'"
-             :lang="targetLanguage"
-             :class="{ 'rtl-text': isRTLLanguage(targetLanguage) }">
-            {{ sentence }}
-          </p>
-        </div>
-      </div>
-      
-      <!-- Add spacer to maintain scroll height when the readable panel floats -->
-      <div v-if="isScrolled" class="readable-spacer"></div>
     </div>
   </div>
-</template>
+  
+  <div class="form-group">
+    <label for="sourceText">Text to Translate</label>
+    <textarea 
+      id="sourceText" 
+      v-model="sourceText" 
+      placeholder="Enter the text you want to translate..."
+      :disabled="isTranslating"
+    ></textarea>
+  </div>
+  
+  <!-- API key UI elements removed -->
+  
+  <button @click="translateText" :disabled="isTranslating" class="primary-button">
+    <span v-if="isTranslating">Translating...</span>
+    <span v-else>Translate</span>
+  </button>
+  
+  <div v-if="error" class="error-message">{{ error }}</div>
+</section>
 
+<div class="translation-container" v-if="translationResult">
+  <div class="interlinear-pane" id="interlinear-pane">
+    <div class="pane-header">
+      Interlinear Translation
+      <div class="pane-actions">
+        <button @click="printInterlinear" class="action-button" title="Print interlinear translation">
+          <span class="action-icon">🖨️</span>
+        </button>
+      </div>
+    </div>
+    <div class="interlinear-content">
+      <div v-for="(chunk, chunkIndex) in translationResult.interlinear" :key="chunkIndex" class="chunk">
+        <div class="word-container">
+          <div 
+            v-for="(wordPair, wordIndex) in chunk" 
+            :key="wordIndex" 
+            :class="['interlinear-word', { 'speaker-change': isDialogueChange(wordPair, wordIndex, chunk) }]"
+            @dblclick="showWordDetails(wordPair.original)"
+          >
+            <div class="original">{{ wordPair.original }}</div>
+            <div class="translation">{{ wordPair.translation }}</div>
+          </div>
+        </div>
+        <!-- Add a visual separator between chunks -->
+        <div v-if="chunkIndex < translationResult.interlinear.length - 1" class="chunk-separator"></div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="readable-pane" :class="{ 'floating': isScrolled }" id="readable-pane" :style="floatingStyle">
+    <div class="pane-header">
+      Readable Translation
+      <div class="pane-actions">
+        <button @click="copyReadableTranslation" class="action-button" title="Copy to clipboard">
+          <span class="action-icon">📋</span>
+        </button>
+      </div>
+    </div>
+    <div class="readable-content">
+      <p v-for="(sentence, index) in translationResult.readable" :key="index"
+         :dir="isRTLLanguage(targetLanguage) ? 'rtl' : 'ltr'"
+         :lang="targetLanguage"
+         :class="{ 'rtl-text': isRTLLanguage(targetLanguage) }">
+        {{ sentence }}
+      </p>
+    </div>
+  </div>
+  
+  <!-- Add spacer to maintain scroll height when the readable panel floats -->
+  <div v-if="isScrolled" class="readable-spacer"></div>
+</div>
+  </div>
+</template>
 <script>
 export default {
   data() {
@@ -121,12 +120,14 @@ export default {
       targetLanguage: 'en',
       sourceText: '',
       translationResult: null,
-      apiKey: '', // Store API key
+      apiKey: import.meta.env.VITE_OPENAI_API_KEY || '', // Use environment variable or empty string
       isTranslating: false,
       error: null,
       isScrolled: false,
+      wordDetails: null,
+      isLoadingWordDetails: false,
       languages: [
-        // Top 50 most widely spoken languages by number of speakers
+        // Major languages
         { code: 'en', name: 'English' },
         { code: 'zh-Hans', name: 'Chinese (Simplified)' },
         { code: 'zh-Hant', name: 'Chinese (Traditional)' },
@@ -174,8 +175,31 @@ export default {
         { code: 'ne', name: 'Nepali' },
         { code: 'am', name: 'Amharic' },
         { code: 'he', name: 'Hebrew' },
-        { code: 'tl', name: 'Filipino (Tagalog)' }
-        // Removed: Sindhi, Malay, Kurdish, Somali
+        { code: 'tl', name: 'Filipino (Tagalog)' },
+        
+        // Added languages
+        { code: 'la', name: 'Latin' },
+        { code: 'sv', name: 'Swedish' },
+        { code: 'no', name: 'Norwegian' },
+        { code: 'da', name: 'Danish' },
+        { code: 'et', name: 'Estonian' },
+        { code: 'lv', name: 'Latvian' },
+        { code: 'lt', name: 'Lithuanian' },
+        { code: 'sr', name: 'Serbian' },
+        { code: 'cs', name: 'Czech' },
+        { code: 'sk', name: 'Slovak' },
+        { code: 'sl', name: 'Slovenian' },
+        { code: 'hr', name: 'Croatian' },
+        { code: 'sq', name: 'Albanian' },
+        { code: 'bo', name: 'Tibetan' },
+        { code: 'sa', name: 'Sanskrit' },
+        { code: 'cy', name: 'Welsh' },
+        { code: 'ga', name: 'Irish Gaelic' },
+        { code: 'kk', name: 'Kazakh' },
+        { code: 'mn', name: 'Mongolian' },
+        { code: 'hy', name: 'Armenian' },
+        { code: 'az', name: 'Azeri' },
+        { code: 'fi', name: 'Finnish' }
       ]
     }
   },
@@ -227,11 +251,18 @@ export default {
         return;
       }
       
+      // Check if we have the API key from the environment variable, otherwise prompt
       if (!this.apiKey) {
-        this.apiKey = prompt('Please enter your OpenAI API key:');
+        // Try to get from import.meta.env for Vite
+        this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        
+        // If still no API key, prompt the user
         if (!this.apiKey) {
-          alert('API key is required for translation');
-          return;
+          this.apiKey = prompt('Please enter your OpenAI API key:');
+          if (!this.apiKey) {
+            alert('API key is required for translation');
+            return;
+          }
         }
       }
       
@@ -304,7 +335,7 @@ export default {
         
         const { OpenAI } = await import('openai');
         const openai = new OpenAI({
-          apiKey: this.apiKey,
+          apiKey: this.apiKey || import.meta.env.VITE_OPENAI_API_KEY,
           dangerouslyAllowBrowser: true // In production, proxy through a backend
         });
         
@@ -389,7 +420,7 @@ export default {
     async getInterlinearTranslation() {
       const { OpenAI } = await import('openai');
       const openai = new OpenAI({
-        apiKey: this.apiKey,
+        apiKey: this.apiKey || import.meta.env.VITE_OPENAI_API_KEY,
         dangerouslyAllowBrowser: true
       });
       
@@ -884,6 +915,283 @@ Return valid JSON with translation pairs.` },
       document.body.removeChild(textArea);
     },
     
+    // Show word details including gloss, etymology, and derivations
+    async showWordDetails(word) {
+      if (!word || word.trim() === '') {
+        return;
+      }
+      
+      // Make sure we have an API key
+      if (!this.apiKey) {
+        this.apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        if (!this.apiKey) {
+          alert('API key is required for word details');
+          return;
+        }
+      }
+      
+      this.isLoadingWordDetails = true;
+      this.wordDetails = null;
+      
+      try {
+        const { OpenAI } = await import('openai');
+        const openai = new OpenAI({
+          apiKey: this.apiKey || import.meta.env.VITE_OPENAI_API_KEY,
+          dangerouslyAllowBrowser: true
+        });
+        
+        const prompt = `Provide a detailed linguistic analysis for the word "${word}" in ${this.getLanguageName(this.sourceLanguage)}. Include:
+1. Exact gloss (concise definition)
+2. Etymology (word origin)
+3. Related derivations or cognates in other languages
+4. Grammatical details specific to the word:
+   - For verbs: tense, mood, aspect, person, number, conjugation pattern
+   - For nouns: case, number, gender, declension pattern
+   - For adjectives: gender, number, comparison forms
+   - For other parts of speech: relevant morphological features
+
+Format as JSON with these keys: "gloss", "etymology", "derivations", "grammar" (for detailed grammatical analysis), "notes" (for additional usage information).`;
+        
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o",
+          messages: [
+            { role: "system", content: "You are a linguistic expert providing concise, accurate information about words. Always respond with valid JSON." },
+            { role: "user", content: prompt }
+          ],
+          response_format: { type: "json_object" }
+        });
+        
+        const content = response.choices[0].message.content.trim();
+        this.wordDetails = JSON.parse(content);
+        
+        // Create and show a modal with the word details
+        this.displayWordDetailsModal(word, this.wordDetails);
+        
+      } catch (error) {
+        console.error('Error fetching word details:', error);
+        this.wordDetails = {
+          gloss: "Error retrieving details",
+          etymology: "Could not load etymology information",
+          derivations: [],
+          grammar: "Could not load grammatical information",
+          notes: "There was a problem connecting to the OpenAI service."
+        };
+        
+        // Still show the modal but with error information
+        this.displayWordDetailsModal(word, this.wordDetails);
+      } finally {
+        this.isLoadingWordDetails = false;
+      }
+    },
+    
+    // Display word details in a modal
+    displayWordDetailsModal(word, details) {
+      // Create modal element
+      let modal = document.getElementById('word-details-modal');
+      
+      // If modal doesn't exist, create it
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'word-details-modal';
+        document.body.appendChild(modal);
+      }
+      
+      // Set content
+      modal.innerHTML = `
+        <div class="word-details-content">
+          <div class="word-details-header">
+            <h2>${word}</h2>
+            <button class="close-button" onclick="document.getElementById('word-details-modal').style.display='none'">×</button>
+          </div>
+          <div class="word-details-body">
+            <div class="detail-section">
+              <h3>Gloss</h3>
+              <p>${details.gloss || 'Not available'}</p>
+            </div>
+            <div class="detail-section">
+              <h3>Etymology</h3>
+              <p>${details.etymology || 'Not available'}</p>
+            </div>
+            <div class="detail-section">
+              <h3>Related Words/Derivations</h3>
+              <p>${this.formatDerivations(details.derivations)}</p>
+            </div>
+            <div class="detail-section">
+              <h3>Grammar</h3>
+              <p>${this.formatGrammar(details.grammar) || 'Not available'}</p>
+            </div>
+            <div class="detail-section">
+              <h3>Notes</h3>
+              <p>${details.notes || 'None available'}</p>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Display the modal
+      modal.style.display = 'flex';
+      
+      // Add event listener to close when clicking outside
+      modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    },
+    
+    // Format derivations data for display
+    formatDerivations(derivations) {
+      let formattedString = 'None available'; // Use a variable to hold the intermediate result
+
+      if (!derivations) return formattedString; // Return default early
+
+      try {
+        // Check if it's a string that contains JSON (starts with [ or {)
+        if (typeof derivations === 'string' &&
+            (derivations.trim().startsWith('[') || derivations.trim().startsWith('{'))) {
+          try {
+            // Try to parse it as JSON
+            const parsedData = JSON.parse(derivations);
+            // Call the function again with the parsed data
+            formattedString = this.formatDerivations(parsedData); // Assign result
+          } catch (e) {
+            console.warn("Failed to parse JSON string in derivations, treating as plain string:", derivations);
+            // Continue with normal string handling if parsing fails
+            formattedString = derivations; // Assign original string
+          }
+        }
+        // Special case for "cognates:" string which might contain JSON-like data
+        else if (typeof derivations === 'string' && derivations.includes('cognates:')) {
+          try {
+            // Extract the part after "cognates:"
+            const potentialJsonPart = derivations.substring(derivations.indexOf('cognates:') + 'cognates:'.length).trim();
+            // Check if it looks like an array or object
+            if (potentialJsonPart.startsWith('[') || potentialJsonPart.startsWith('{')) {
+              const parsedData = JSON.parse(potentialJsonPart);
+
+              // Format array of cognate objects specifically
+              if (Array.isArray(parsedData)) {
+                formattedString = parsedData.map(item => {
+                  if (item && typeof item === 'object' && item.language && item.word) {
+                     let result = `<strong>${item.language}</strong>: ${item.word}`;
+                     if (item.meaning) result += `, ${item.meaning}`;
+                     else if (item.origin) result += `, ${item.origin}`;
+                     return result;
+                  } else if (typeof item === 'string'){
+                      return item; // Return simple string cognates directly
+                  }
+                  // Fallback for unexpected item format in array
+                  return JSON.stringify(item);
+                }).join('<br>');
+              } else {
+                 // If parsed data is not an array, treat as object or fallback stringify
+                 formattedString = this.formatGrammar(parsedData); // Use grammar formatter for objects
+              }
+            } else {
+              // If it doesn't look like JSON, treat the whole string as plain text
+              formattedString = derivations;
+            }
+          } catch (e) {
+            console.warn("Failed to parse cognates data, treating as plain string:", derivations, e);
+            formattedString = derivations; // Assign original string on error
+          }
+        }
+        // If it's a regular string, assign it directly
+        else if (typeof derivations === 'string') {
+          formattedString = derivations;
+        }
+        // Handle array of objects (potentially cognates already parsed)
+        else if (Array.isArray(derivations) && derivations.length > 0 && typeof derivations[0] === 'object') {
+           formattedString = derivations.map(item => {
+             if (item && typeof item === 'object' && item.language && item.word) {
+                let result = `<strong>${item.language}</strong>: ${item.word}`;
+                if (item.meaning) result += `, ${item.meaning}`;
+                else if (item.origin) result += `, ${item.origin}`;
+                return result;
+             } else if (typeof item === 'string'){
+                return item; // Handle string items in the array
+             }
+             // Fallback for unexpected item format in array
+             return JSON.stringify(item);
+           }).join('<br>');
+        }
+        // If it's a simple array of strings, join with commas
+        else if (Array.isArray(derivations)) {
+          formattedString = derivations.join(', ');
+        }
+        // If it's an object (which might cause [object Object])
+        else if (typeof derivations === 'object' && derivations !== null) {
+          // Use the grammar formatter logic for a nicer object display
+          formattedString = this.formatGrammar(derivations);
+        }
+        // Fallback for other types
+        else {
+          formattedString = String(derivations);
+        }
+
+      } catch (error) {
+         console.error("Error during derivations formatting:", error);
+         // Fallback to original input or error message
+         formattedString = typeof derivations === 'string' ? derivations : JSON.stringify(derivations);
+         formattedString = `Error formatting: ${formattedString}`;
+      }
+
+      // --- ADDED CLEANING STEP ---
+      // Remove square brackets and double/single quotes from the final string
+      // Be careful not to remove brackets/quotes if they are part of HTML tags (like <strong>)
+      // We can do this by temporarily replacing HTML tags, cleaning, then restoring.
+      const tagPlaceholder = '___HTMLTAG___';
+      const tags = formattedString.match(/<[^>]*>/g) || [];
+      let tempString = formattedString;
+      tags.forEach((tag, index) => {
+          tempString = tempString.replace(tag, `${tagPlaceholder}${index}`);
+      });
+
+      // Now remove the unwanted characters from the non-tag parts
+      tempString = tempString.replace(/\[|\]|"|'/g, '');
+
+      // Restore the HTML tags
+      tags.forEach((tag, index) => {
+          tempString = tempString.replace(`${tagPlaceholder}${index}`, tag);
+      });
+
+      return tempString || 'None available'; // Return the cleaned string or default
+    },
+    
+    // Format grammar data for display
+    formatGrammar(grammar) {
+      if (!grammar) return 'Not available';
+      
+      // If it's a string, return it directly
+      if (typeof grammar === 'string') return grammar;
+      
+      // If it's an object, format it nicely
+      if (typeof grammar === 'object') {
+        try {
+          let result = '';
+          for (const key in grammar) {
+            if (grammar.hasOwnProperty(key)) {
+              let value = grammar[key];
+              // Handle nested objects
+              if (typeof value === 'object' && value !== null) {
+                value = Object.entries(value)
+                  .map(([k, v]) => `${k}: ${v}`)
+                  .join(', ');
+              }
+              result += `<strong>${key}</strong>: ${value}<br>`;
+            }
+          }
+          return result || 'Not available';
+        } catch (e) {
+          console.error("Error formatting grammar object:", e);
+          return JSON.stringify(grammar);
+        }
+      }
+      
+      // Fallback
+      return String(grammar);
+    },
+    
     // Print the interlinear translation with margin notes
     printInterlinear() {
       // Create a new window for printing
@@ -994,46 +1302,46 @@ Return valid JSON with translation pairs.` },
               cursor: pointer;
             }
           </style>
-        </head>
-        <body>
-          <div class="print-header">
-            <h1>Interlinear Translation</h1>
-            <p>Source Language: ${this.getLanguageName(this.sourceLanguage)} | Target Language: ${this.getLanguageName(this.targetLanguage)}</p>
-          </div>
-          
-          <div class="print-actions no-print">
-            <button class="print-button" onclick="window.print()">Print Document</button>
-          </div>
-          
-          <div class="print-container">
-            <div class="interlinear-section">
-              <h2>Interlinear Translation</h2>
-              ${interlinearContent.outerHTML}
-            </div>
-            
-            <div class="readable-section">
-              <h2>Readable Translation</h2>
-              <div>
-                ${this.translationResult.readable.map(s => `<p>${s}</p>`).join('')}
-              </div>
-            </div>
-          </div>
-        </body>
-        </html>
-      `;
+</head>
+    <body>
+      <div class="print-header">
+        <h1>Interlinear Translation</h1>
+        <p>Source Language: ${this.getLanguageName(this.sourceLanguage)} | Target Language: ${this.getLanguageName(this.targetLanguage)}</p>
+      </div>
       
-      // Write to the new window
-      printWindow.document.open();
-      printWindow.document.write(printContent);
-      printWindow.document.close();
+      <div class="print-actions no-print">
+        <button class="print-button" onclick="window.print()">Print Document</button>
+      </div>
       
-      // Optional: Wait for resources to load then print
-      printWindow.onload = function() {
-        // Uncomment to automatically print
-        // printWindow.print();
-      };
-    }
-  }
+      <div class="print-container">
+        <div class="interlinear-section">
+          <h2>Interlinear Translation</h2>
+          ${interlinearContent.outerHTML}
+        </div>
+        
+        <div class="readable-section">
+          <h2>Readable Translation</h2>
+          <div>
+            ${this.translationResult.readable.map(s => `<p>${s}</p>`).join('')}
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+  
+  // Write to the new window
+  printWindow.document.open();
+  printWindow.document.write(printContent);
+  printWindow.document.close();
+  
+  // Optional: Wait for resources to load then print
+  printWindow.onload = function() {
+    // Uncomment to automatically print
+    // printWindow.print();
+  };
+}
+}
 }
 </script>
 
@@ -1137,5 +1445,82 @@ Return valid JSON with translation pairs.` },
 /* Add better spacing and alignment for dashes and punctuation */
 .interlinear-word {
   position: relative;
+  cursor: pointer;
+}
+
+/* Word details modal styles */
+#word-details-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.word-details-content {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.word-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.word-details-header h2 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #333;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #666;
+  padding: 0 5px;
+}
+
+.close-button:hover {
+  color: #333;
+}
+
+.word-details-body {
+  padding: 20px;
+}
+
+.detail-section {
+  margin-bottom: 15px;
+}
+
+.detail-section h3 {
+  margin: 0 0 5px 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+.detail-section p {
+  margin: 0;
+  line-height: 1.5;
 }
 </style>
