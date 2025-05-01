@@ -1,0 +1,19 @@
+{
+  "name": "interlinear",
+  "version": "1.0.0",
+  "description": "An app for interlinear translation with parallel view",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "openai": "^4.91.0",
+    "vue": "^3.3.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.2.4"
+  }
+}
