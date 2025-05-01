@@ -88,4 +88,5 @@ The recommended way to provide your API key is through environment variables:
 
 ## Screenshot
 
-<img width="1195" alt="Screenshot 2025-04-03 at 3 11 22 PM" src="https://github.com/user-attachments/assets/64053d74-612d-4360-b572-01d77839af5b" />
+<img width="1200" alt="Screenshot 2025-05-01 at 12 11 31 PM" src="https://github.com/user-attachments/assets/1cee9fb7-f7f6-4384-bf54-60c413533380" />
+
